@@ -2,11 +2,14 @@
 
 import Button from "@/app/components/Button";
 import Input from "@/app/components/inputs/Input";
-import clsx from "clsx";
+import axios from "axios";
+import { signIn } from "next-auth/react";
 import { useCallback, useState } from "react";
-import { FieldValues, useForm, SubmitHandler } from "react-hook-form";
-import AuthSocialButton from "./AuthSocialButton";
+import { FieldValues, SubmitHandler, useForm } from "react-hook-form";
+import { toast } from "react-hot-toast";
 import { BsGithub, BsGoogle } from "react-icons/bs";
+import { LuLoader } from "react-icons/lu";
+import AuthSocialButton from "./AuthSocialButton";
 
 type AuthFormProps = {};
 
@@ -40,30 +43,59 @@ const AuthForm = (props: AuthFormProps) => {
     setIsLoading(true);
 
     if (variant === "REGISTER") {
-      // Register
+      axios
+        .post("/api/register", data)
+        .then(() => {
+          toast.success("You have successfully created an account!");
+          setVariant("LOGIN");
+        })
+        .catch(() => {
+          toast.error("Something went wrong!");
+        })
+        .finally(() => {
+          setIsLoading(false);
+        });
     }
 
     if (variant === "LOGIN") {
-      // NextAuth Sign In
+      signIn("credentials", {
+        ...data,
+        redirect: false,
+      })
+        .then((callback) => {
+          if (callback?.error) {
+            toast.error("Invalid data!");
+          }
+
+          if (callback?.ok && !callback?.error) {
+            toast.success("Successfully logged in!");
+          }
+        })
+        .finally(() => setIsLoading(false));
     }
   };
 
   const socialAction = (action: string) => {
     setIsLoading(true);
 
-    // NextAuth Social Sign In
+    signIn(action, { redirect: false })
+      .then((callback) => {
+        if (callback?.error) {
+          toast.error("Invalid data!");
+        }
+
+        if (callback?.ok && !callback?.error) {
+          toast.success("Successfully logged in!");
+        }
+      })
+      .finally(() => setIsLoading(false));
   };
   return (
     <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
       <div className="bg-white px-4 py-8 shadow sm:rounded-lg sm:px-10">
         <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
           {variant === "REGISTER" && (
-            <Input
-              id="email"
-              label="Email"
-              register={register}
-              errors={errors}
-            />
+            <Input id="name" label="Name" register={register} errors={errors} />
           )}
           <Input
             id="email"
@@ -81,7 +113,13 @@ const AuthForm = (props: AuthFormProps) => {
           />
           <div>
             <Button disabled={isLoading} fullWidth type="submit">
-              {variant === "LOGIN" ? "Sign in" : "Register"}
+              {isLoading ? (
+                <LuLoader className="animate-spin" />
+              ) : variant === "LOGIN" ? (
+                "Sign in"
+              ) : (
+                "Register"
+              )}
             </Button>
           </div>
         </form>

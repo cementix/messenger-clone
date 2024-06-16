@@ -1,3 +1,6 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
 generator client {
   provider = "prisma-client-js"
 }
@@ -66,12 +69,12 @@ model Message {
   image     String?
   createdAt DateTime @default(now())
 
-  seen    User[]   @relation("Seen", fields: [seenIds], references: [id])
   seenIds String[] @db.ObjectId
+  seen    User[]   @relation("Seen", fields: [seenIds], references: [id])
 
-  sender   User?   @relation(fields: [senderId], references: [id], onDelete: Cascade)
-  senderId String? @db.ObjectId
+  conversationId String       @db.ObjectId
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
 
-  conversation   Conversation? @relation(fields: [conversationId], references: [id], onDelete: Cascade)
-  conversationId String        @db.ObjectId
+  senderId String @db.ObjectId
+  sender   User   @relation(fields: [senderId], references: [id], onDelete: Cascade)
 }
