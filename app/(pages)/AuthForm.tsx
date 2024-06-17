@@ -4,6 +4,7 @@ import Button from "@/app/components/Button";
 import Input from "@/app/components/inputs/Input";
 import axios from "axios";
 import { signIn } from "next-auth/react";
+import { useRouter } from "next/navigation";
 import { useCallback, useState } from "react";
 import { FieldValues, SubmitHandler, useForm } from "react-hook-form";
 import { toast } from "react-hot-toast";
@@ -18,6 +19,8 @@ type Variant = "LOGIN" | "REGISTER";
 const AuthForm = (props: AuthFormProps) => {
   const [variant, setVariant] = useState<Variant>("LOGIN");
   const [isLoading, setIsLoading] = useState<boolean>(false);
+
+  const router = useRouter();
 
   const toggleVariant = useCallback(() => {
     if (variant === "LOGIN") {
@@ -47,13 +50,21 @@ const AuthForm = (props: AuthFormProps) => {
         .post("/api/register", data)
         .then(() => {
           toast.success("You have successfully created an account!");
-          setVariant("LOGIN");
+          signIn("credentials", { ...data, redirect: false }).then(
+            (callback) => {
+              if (callback?.error) {
+                toast.error("Unexpected error!");
+              }
+
+              if (callback?.ok && !callback?.error) {
+                router.push("/users");
+                toast.success("Successfully logged in!");
+              }
+            }
+          );
         })
         .catch(() => {
           toast.error("Something went wrong!");
-        })
-        .finally(() => {
-          setIsLoading(false);
         });
     }
 
@@ -91,8 +102,8 @@ const AuthForm = (props: AuthFormProps) => {
       .finally(() => setIsLoading(false));
   };
   return (
-    <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-      <div className="bg-white px-4 py-8 shadow sm:rounded-lg sm:px-10">
+    <div className="sm:mx-auto mt-8 sm:w-full sm:max-w-md">
+      <div className="bg-white shadow px-4 sm:px-10 py-8 sm:rounded-lg">
         <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
           {variant === "REGISTER" && (
             <Input id="name" label="Name" register={register} errors={errors} />
@@ -127,7 +138,7 @@ const AuthForm = (props: AuthFormProps) => {
         <div className="mt-6">
           <div className="relative">
             <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-gray-300" />
+              <div className="border-gray-300 border-t w-full" />
             </div>
             <div className="relative flex justify-center text-sm">
               <span className="bg-white px-2 text-gray-500">
@@ -136,7 +147,7 @@ const AuthForm = (props: AuthFormProps) => {
             </div>
           </div>
 
-          <div className="mt-6 flex gap-2">
+          <div className="flex gap-2 mt-6">
             <AuthSocialButton
               icon={BsGithub}
               onClick={() => socialAction("github")}
@@ -148,7 +159,7 @@ const AuthForm = (props: AuthFormProps) => {
           </div>
         </div>
 
-        <div className="flex gap-2 justify-center text-sm mt-6 px-2 text-gray-500">
+        <div className="flex justify-center gap-2 mt-6 px-2 text-gray-500 text-sm">
           <div>
             {variant === "LOGIN"
               ? "New to Messanger?"
