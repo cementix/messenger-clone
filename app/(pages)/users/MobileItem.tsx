@@ -10,7 +10,6 @@ interface MobileItemProps {
 }
 
 const MobileItem = ({ icon: Icon, href, onClick, active }: MobileItemProps) => {
-  console.log(active);
   const handleClick = () => {
     if (onClick) {
       return onClick();
@@ -22,7 +21,7 @@ const MobileItem = ({ icon: Icon, href, onClick, active }: MobileItemProps) => {
       onClick={handleClick}
       className={clsx(
         `group flex gap-x-3 text-sm leading-6 font-semibold w-full justify-center p-4 text-gray-400 hover:text-black hover:bg-gray-100`,
-        active && "bg-gray-100 text-black"
+        active && "bg-gray-100 !text-black"
       )}
     >
       <Icon className="w-6 h-6" />
