@@ -31,8 +31,50 @@ export async function POST(request: NextRequest) {
             ],
           },
         },
+        include: {
+          users: true,
+        },
       });
+
+      return NextResponse.json(newConversation);
     }
+
+    const existingConversations = await prisma.conversation.findMany({
+      where: {
+        OR: [
+          {
+            userIds: {
+              equals: [currentUser.id, userId],
+            },
+          },
+          {
+            userIds: {
+              equals: [userId, currentUser.id],
+            },
+          },
+        ],
+      },
+    });
+
+    if (existingConversations[0]) {
+      return NextResponse.json(existingConversations[0]);
+    }
+
+    const newConversation = await prisma.conversation.create({
+      data: {
+        users: {
+          connect: [
+            {
+              id: currentUser.id,
+            },
+            {
+              id: userId,
+            },
+          ],
+        },
+      },
+    });
+    return NextResponse.json(newConversation);
   } catch (error: any) {
     return new NextResponse(
       `Internal error: ${error?.message || "Unexpected error"}`,
