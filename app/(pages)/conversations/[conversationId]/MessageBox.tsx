@@ -54,6 +54,9 @@ const MessageBox = ({ data, isLast }: MessageBoxProps) => {
             <div>{data.body}</div>
           )}
         </div>
+        {isLast && isOwn && seenList.length > 0 && (
+          <div className="font-light text-gray-500 text-xs">{`Seen by ${seenList}`}</div>
+        )}
       </div>
     </div>
   );

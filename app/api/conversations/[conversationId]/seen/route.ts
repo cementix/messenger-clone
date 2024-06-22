@@ -55,6 +55,7 @@ export async function POST(req: NextRequest, { params }: { params: IParams }) {
         },
       },
     });
+
     return NextResponse.json(updatedMessage);
   } catch (error) {
     console.log(error, "ERROR_MESSAGES_SEEN");
