@@ -1,5 +1,6 @@
 "use client";
 
+import Avatar from "@/app/components/Avatar";
 import useOtherUser from "@/app/hooks/useOtherUser";
 import {
   Dialog,
@@ -10,7 +11,7 @@ import {
 import { Conversation, User } from "@prisma/client";
 import { format } from "date-fns";
 import { Fragment, useMemo } from "react";
-import { IoClose } from "react-icons/io5";
+import { IoClose, IoTrash } from "react-icons/io5";
 
 interface ProfileDrawerProps {
   isOpen: boolean;
@@ -20,7 +21,7 @@ interface ProfileDrawerProps {
 
 const ProfileDrawer = ({ isOpen, onClose, data }: ProfileDrawerProps) => {
   const otherUser = useOtherUser(data);
-  const joinedData = useMemo(() => {
+  const joinedDate = useMemo(() => {
     return format(new Date(otherUser.createdAt), "PP");
   }, []);
   const title = useMemo(() => {
@@ -74,7 +75,57 @@ const ProfileDrawer = ({ isOpen, onClose, data }: ProfileDrawerProps) => {
                         </div>
                       </div>
                     </div>
-                    <div className="relative"></div>
+                    <div className="relative flex-1 mt-6 px-4 sm:px-6">
+                      <div className="flex flex-col items-center">
+                        <div className="mb-2">
+                          <Avatar user={otherUser} />
+                        </div>
+                        <div>{title}</div>
+                        <div className="text-gray-500 text-sm">
+                          {statusText}
+                        </div>
+                        <div className="flex gap-10 my-8">
+                          <div
+                            onClick={() => {}}
+                            className="flex flex-col items-center gap-3 hover:opacity-75 cursor-pointer"
+                          >
+                            <div className="flex justify-center items-center bg-neutral-100 rounded-full w-10 h-10">
+                              <IoTrash size={20} />
+                            </div>
+                            <div className="font-light text-neutral-600 text-sm">
+                              Delete
+                            </div>
+                          </div>
+                        </div>
+                        <div className="sm:px-0 pt-5 sm:pt-0 pb-5 w-full">
+                          <dl className="space-y-8 sm:space-y-6 px-4 sm:px-6">
+                            {!data.isGroup && (
+                              <>
+                                <div>
+                                  <dt className="sm:flex-shrink-0 sm:w-40 font-medium text-gray-500 text-sm">
+                                    Email
+                                  </dt>
+                                  <dd className="sm:col-span-2 mt-1 text-gray-900 text-sm">
+                                    {otherUser.email}
+                                  </dd>
+                                </div>
+                                <hr />
+                                <div>
+                                  <dt className="sm:flex-shrink-0 sm:w-40 font-medium text-gray-500 text-sm">
+                                    Joined
+                                  </dt>
+                                  <dd className="sm:col-span-2 mt-1 text-gray-900 text-sm">
+                                    <time dateTime={joinedDate}>
+                                      {joinedDate}
+                                    </time>
+                                  </dd>
+                                </div>
+                              </>
+                            )}
+                          </dl>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </DialogPanel>
               </TransitionChild>
