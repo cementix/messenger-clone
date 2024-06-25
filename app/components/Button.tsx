@@ -34,6 +34,7 @@ const Button = ({
           !danger &&
           "bg-sky-500 hover:bg-sky-600 focus-visible:outline-sky-600"
       )}
+      onClick={onClick}
     >
       {children}
     </button>
