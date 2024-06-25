@@ -13,6 +13,7 @@ import { format } from "date-fns";
 import { Fragment, useMemo, useState } from "react";
 import { IoClose, IoTrash } from "react-icons/io5";
 import ConfirmModal from "./ConfirmModal";
+import AvatarGroup from "@/app/components/AvatarGroup";
 
 interface ProfileDrawerProps {
   isOpen: boolean;
@@ -85,7 +86,11 @@ const ProfileDrawer = ({ isOpen, onClose, data }: ProfileDrawerProps) => {
                       <div className="relative flex-1 mt-6 px-4 sm:px-6">
                         <div className="flex flex-col items-center">
                           <div className="mb-2">
-                            <Avatar user={otherUser} />
+                            {data.isGroup ? (
+                              <AvatarGroup users={data.users} />
+                            ) : (
+                              <Avatar user={otherUser} />
+                            )}
                           </div>
                           <div>{title}</div>
                           <div className="text-gray-500 text-sm">
@@ -106,7 +111,7 @@ const ProfileDrawer = ({ isOpen, onClose, data }: ProfileDrawerProps) => {
                           </div>
                           <div className="sm:px-0 pt-5 sm:pt-0 pb-5 w-full">
                             <dl className="space-y-8 sm:space-y-6 px-4 sm:px-6">
-                              {!data.isGroup && (
+                              {!data.isGroup ? (
                                 <>
                                   <div>
                                     <dt className="sm:flex-shrink-0 sm:w-40 font-medium text-gray-500 text-sm">
@@ -128,6 +133,17 @@ const ProfileDrawer = ({ isOpen, onClose, data }: ProfileDrawerProps) => {
                                     </dd>
                                   </div>
                                 </>
+                              ) : (
+                                <div>
+                                  <dt className="sm:flex-shrink-0 sm:w-40 font-medium text-gray-500 text-sm">
+                                    Emails
+                                  </dt>
+                                  {data.users.map((user) => (
+                                    <p className="text-neutral-700 text-sm">
+                                      {user.name} - {user.email}
+                                    </p>
+                                  ))}
+                                </div>
                               )}
                             </dl>
                           </div>
