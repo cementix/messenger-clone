@@ -34,7 +34,7 @@ const ConfirmModal = ({ isOpen, onClose }: ConfirmModalProps) => {
   }, [conversationId, router, onClose]);
   return (
     <Modal isOpen={isOpen} onClose={onClose}>
-      <div className="sm:flex sm:items-start">
+      <div className="sm:flex sm:items-start p-4">
         <div className="flex flex-shrink-0 justify-center items-center bg-red-100 mx-auto sm:mx-0 rounded-full w-12 sm:w-10 h-12 sm:h-10">
           <FiAlertTriangle className="w-6 h-6 text-red-600" />
         </div>
@@ -53,7 +53,7 @@ const ConfirmModal = ({ isOpen, onClose }: ConfirmModalProps) => {
           </div>
         </div>
       </div>
-      <div className="sm:flex sm:flex-row-reverse gap-2 mt-5 sm:mt-4">
+      <div className="flex flex-row-reverse gap-2 mt-5 sm:mt-4">
         <Button disabled={isLoading} danger onClick={onDelete}>
           Delete
         </Button>
