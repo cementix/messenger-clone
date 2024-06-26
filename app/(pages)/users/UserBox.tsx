@@ -25,7 +25,6 @@ const UserBox = ({ user }: { user: User }) => {
   }, [user, router]);
   return (
     <>
-      {isLoading && <LoadingModal />}
       <div
         onClick={handleClick}
         className="relative flex items-center space-x-3 bg-white hover:bg-neutral-100 p-3 rounded-lg w-full transition cursor-pointer"

@@ -1,5 +1,9 @@
-
-import { Dialog, Transition } from "@headlessui/react";
+import {
+  Dialog,
+  DialogPanel,
+  Transition,
+  TransitionChild,
+} from "@headlessui/react";
 import { Fragment } from "react";
 import { IoClose } from "react-icons/io5";
 
@@ -11,9 +15,9 @@ interface ModalProps {
 
 const Modal: React.FC<ModalProps> = ({ isOpen, onClose, children }) => {
   return (
-    <Transition.Root show={isOpen} as={Fragment}>
+    <Transition show={isOpen} as={Fragment}>
       <Dialog as="div" className="relative z-50" onClose={onClose}>
-        <Transition.Child
+        <TransitionChild
           as={Fragment}
           enter="ease-out duration-300"
           enterFrom="opacity-0"
@@ -23,10 +27,10 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, children }) => {
           leaveTo="opacity-0"
         >
           <div className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" />
-        </Transition.Child>
+        </TransitionChild>
         <div className="z-10 fixed inset-0 overflow-y-auto">
           <div className="flex justify-center items-center p-4 sm:p-0 min-h-full text-center">
-            <Transition.Child
+            <TransitionChild
               as={Fragment}
               enter="ease-out duration-300"
               enterFrom="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
@@ -35,7 +39,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, children }) => {
               leaveFrom="opacity-100 translate-y-0 sm:scale-100"
               leaveTo="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
             >
-              <Dialog.Panel className="relative bg-white shadow-xsl sm:my-8 px-4 sm:p-6 pb-4 rounded-lg w-full sm:w-full sm:max-w-lg text-left transform transition-all overflow-hidden">
+              <DialogPanel className="relative bg-white shadow-xsl sm:my-8 px-4 sm:p-6 pb-4 rounded-lg w-full sm:w-full sm:max-w-lg text-left transform transition-all overflow-hidden">
                 <div className="sm:block top-0 right-0 z-10 absolute hidden pt-4 pr-4">
                   <button
                     type="button"
@@ -47,12 +51,12 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, children }) => {
                   </button>
                 </div>
                 {children}
-              </Dialog.Panel>
-            </Transition.Child>
+              </DialogPanel>
+            </TransitionChild>
           </div>
         </div>
       </Dialog>
-    </Transition.Root>
+    </Transition>
   );
 };
 
