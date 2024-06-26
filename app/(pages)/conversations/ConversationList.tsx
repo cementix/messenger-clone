@@ -34,7 +34,7 @@ const ConversationList = ({ initialItems, users }: ConversationListProps) => {
           isOpen ? "hidden" : "block w-full left-0"
         )}
       >
-        <div className="px-5">
+        <div className="px-5 h-screen">
           <div className="flex justify-between mb-4 pt-4">
             <div className="font-bold text-2xl text-neutral-800">Messages</div>
             <div className="bg-gray-100 hover:opacity-75 p-2 rounded-full text-gray-600 transition cursor-pointer">
