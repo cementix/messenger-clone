@@ -13,13 +13,14 @@ const Body = ({ initialMessages }: { initialMessages: FullMessageType[] }) => {
   const bottomRef = useRef<HTMLDivElement>(null);
   const { conversationId } = useConversation();
 
+
   useEffect(() => {
     axios.post(`/api/conversations/${conversationId}/seen`);
   }, [conversationId]);
 
   useEffect(() => {
     pusherClient.subscribe(conversationId);
-    bottomRef?.current?.scrollIntoView();
+    bottomRef.current?.parentElement?.scrollTo(0, bottomRef?.current?.offsetTop)
 
     const messageHandler = (message: FullMessageType) => {
       axios.post(`/api/conversations/${conversationId}/seen`);
@@ -32,7 +33,7 @@ const Body = ({ initialMessages }: { initialMessages: FullMessageType[] }) => {
         return [...current, message];
       });
 
-      bottomRef?.current?.scrollIntoView();
+      bottomRef.current?.parentElement?.scrollTo(0, bottomRef?.current?.offsetTop)
     };
 
     pusherClient.bind("messages:new", messageHandler);
@@ -52,7 +53,7 @@ const Body = ({ initialMessages }: { initialMessages: FullMessageType[] }) => {
           data={message}
         />
       ))} 
-       <div ref={bottomRef} className='hidden' />
+       <div ref={bottomRef} />
     </div>
   );
 };
