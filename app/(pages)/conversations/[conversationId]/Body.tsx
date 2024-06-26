@@ -35,7 +35,6 @@ const Body = ({ initialMessages }: { initialMessages: FullMessageType[] }) => {
       bottomRef?.current?.scrollIntoView();
     };
 
-
     pusherClient.bind("messages:new", messageHandler);
 
     return () => {
@@ -45,17 +44,18 @@ const Body = ({ initialMessages }: { initialMessages: FullMessageType[] }) => {
   }, [conversationId]);
 
   return (
-    <div className="flex-1 overflow-y-auto">
+    <div className='flex-1 overflow-y-auto'>
       {messages.map((message, index) => (
         <MessageBox
           isLast={index === messages.length - 1}
           key={message.id}
           data={message}
         />
-      ))}
-      <div ref={bottomRef} className="pt-24" />
+      ))} 
+       <div ref={bottomRef} className='hidden' />
     </div>
   );
 };
 
 export default Body;
+

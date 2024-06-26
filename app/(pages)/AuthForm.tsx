@@ -13,12 +13,11 @@ import { BiLoader } from "react-icons/bi";
 import { BsGithub, BsGoogle } from "react-icons/bs";
 import { LuLoader } from "react-icons/lu";
 import AuthSocialButton from "./AuthSocialButton";
-
-type AuthFormProps = {};
+import { ClipLoader } from "react-spinners";
 
 type Variant = "LOGIN" | "REGISTER";
 
-const AuthForm = (props: AuthFormProps) => {
+const AuthForm = () => {
   const router = useRouter();
 
   const session = useSession();
@@ -47,8 +46,8 @@ const AuthForm = (props: AuthFormProps) => {
 
   if (session?.status === "loading") {
     return (
-      <div className="flex justify-center items-center h-screen">
-        <BiLoader className="text-6xl animate-spin" />
+      <div className="flex justify-center items-center h-full">
+        <ClipLoader className="text-6xl animate-spin" />
       </div>
     );
   } else if (session?.status === "authenticated") {
