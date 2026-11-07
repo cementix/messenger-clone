@@ -12,6 +12,7 @@ export const authOptions: AuthOptions = {
     GithubProvider({
       clientId: process.env.GITHUB_CLIENT_ID as string,
       clientSecret: process.env.GITHUB_SECRET as string,
+      issuer: "https://github.com/login/oauth",
     }),
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID as string,
