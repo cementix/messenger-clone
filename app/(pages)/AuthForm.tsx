@@ -100,21 +100,15 @@ const AuthForm = () => {
     }
   };
 
-  const socialAction = (action: string) => {
+  const socialAction = async (provider: "github" | "google") => {
     setIsLoading(true);
 
-    signIn(action, { redirect: false })
-      .then((callback) => {
-        if (callback?.error) {
-          toast.error("Unexpected error!");
-        }
-
-        if (callback?.ok && !callback?.error) {
-          router.push("/users");
-          toast.success("Successfully logged in!");
-        }
-      })
-      .finally(() => setIsLoading(false));
+    try {
+      await signIn(provider, { callbackUrl: "/users" });
+    } catch {
+      toast.error("Could not start sign-in. Please try again.");
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -184,10 +178,12 @@ const AuthForm = () => {
             <div className="flex gap-2 mt-6">
               <AuthSocialButton
                 icon={BsGithub}
+                disabled={isLoading}
                 onClick={() => socialAction("github")}
               />
               <AuthSocialButton
                 icon={BsGoogle}
+                disabled={isLoading}
                 onClick={() => socialAction("google")}
               />
             </div>

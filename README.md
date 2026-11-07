@@ -25,7 +25,7 @@ This project can serve as:
 | Framework | [Next.js 14](https://nextjs.org) |
 | Language | TypeScript |
 | ORM | [Prisma](https://www.prisma.io) |
-| Database | PostgreSQL / SQLite (for local) |
+| Database | MongoDB (replica set) |
 | Authentication | [NextAuth.js](https://next-auth.js.org) |
 | Real-time | [Pusher](https://pusher.com) |
 | Styling | Tailwind CSS + Headless UI |
@@ -42,8 +42,8 @@ messenger-clone/
 ├── app/ # Next.js App Router structure
 ├── components/ # UI components
 ├── lib/ # helpers (auth, prisma, pusher, etc.)
-├── pages/api/ # backend routes for auth, messages, users
-├── prisma/ # database schema & migrations
+├── pages/api/ # Pusher channel authorization
+├── prisma/ # database schema
 ├── public/ # static assets
 ├── styles/ # Tailwind config & globals
 ├── middleware.ts # access control middleware
@@ -67,51 +67,43 @@ cd messenger-clone
 ### 2. Install dependencies
 
 ```bash
-npm install
-# or
-yarn install
-# or
-pnpm install
+yarn install --frozen-lockfile
 ```
 
 ### 3. Environment variables
 
-Create a `.env` file in the project root:
+Copy `.env.example` to `.env` and fill in the values. Generate a local `NEXTAUTH_SECRET` with:
 
-```env
-DATABASE_URL="postgresql://user:password@localhost:5432/messenger"
-
-NEXTAUTH_SECRET="your_random_secret"
-NEXTAUTH_URL="http://localhost:3000"
-
-PUSHER_APP_ID="your_app_id"
-PUSHER_KEY="your_key"
-PUSHER_SECRET="your_secret"
-PUSHER_CLUSTER="your_cluster"
+```bash
+node -e "console.log(require('node:crypto').randomBytes(32).toString('base64'))"
 ```
 
-> For local development you can switch to SQLite:
->
-> ```
-> DATABASE_URL="file:./dev.db"
-> ```
+In the Google and GitHub OAuth app settings, register the corresponding callback URL:
+
+| Provider | Local callback |
+| -------- | -------------- |
+| Google | `http://localhost:3000/api/auth/callback/google` |
+| GitHub | `http://localhost:3000/api/auth/callback/github` |
+
+Use the same scheme, host, and port in `NEXTAUTH_URL` and the registered callback URLs. On production, use the public HTTPS origin. Use a separate GitHub OAuth app for development if the production app already has its callback configured.
+
+For real-time updates, set the credentials for a Pusher Channels app in the `eu` cluster. For image uploads, set the Cloudinary cloud name and configure an unsigned upload preset named `oeigxkxm`.
 
 ---
 
 ## 🧩 Database Setup
 
-Generate and migrate your schema:
+Set `DATABASE_URL` to a MongoDB replica set connection string with the database name in the path. For MongoDB Atlas, check that the original cluster is running and that the database user and network access are configured for your app. To keep existing accounts and messages, reconnect to the original database or restore a backup.
+
+For a new empty database, create the indexes from the Prisma schema:
 
 ```bash
-npx prisma generate
-npx prisma migrate dev
+yarn prisma db push
 ```
 
-To inspect or edit data:
+To start fresh on an existing deployment, run this command with the new database's URL in your local `.env`, then set the deployment's `DATABASE_URL` to the same value and redeploy. Existing accounts, OAuth links, and messages stay in the old database.
 
-```bash
-npx prisma studio
-```
+If both OAuth providers time out after redirecting back to the app, check the deployment logs for `/api/auth/callback/google` and `/api/auth/callback/github`. Both callbacks access MongoDB through the Prisma adapter. For a timeout before reaching the provider, check the OAuth configuration and the host's outbound connectivity.
 
 ---
 
@@ -151,53 +143,11 @@ npm run lint
 
 ---
 
-## 🗃 Example Prisma Schema
-
-```prisma
-model User {
-  id        String   @id @default(cuid())
-  name      String?
-  email     String   @unique
-  password  String
-  chats     Chat[]   @relation("ChatUsers")
-  messages  Message[]
-  createdAt DateTime @default(now())
-}
-
-model Chat {
-  id           String     @id @default(cuid())
-  participants User[]     @relation("ChatUsers")
-  messages     Message[]
-  createdAt    DateTime   @default(now())
-}
-
-model Message {
-  id        String   @id @default(cuid())
-  chat      Chat     @relation(fields: [chatId], references: [id])
-  chatId    String
-  sender    User     @relation(fields: [senderId], references: [id])
-  senderId  String
-  body      String
-  createdAt DateTime @default(now())
-}
-```
 ## ☁️ Deployment
 
-Recommended:
-
-* **Vercel** for hosting the Next.js app
-* **Railway / Render / Supabase** for database hosting
-
-Steps:
-
-1. Set up your `.env` variables in the hosting platform.
-2. Deploy the project.
-3. Run:
-
-   ```bash
-   npx prisma migrate deploy
-   ```
-4. (Optional) Enable **Prisma Data Proxy** for better scalability.
+1. Set the production environment variables on the hosting platform and allow the deployed app to reach MongoDB.
+2. Set `NEXTAUTH_URL` to the production origin and register the production OAuth callbacks.
+3. Prepare the database as described above, then deploy and test both sign-in flows.
 
 ---
 
@@ -205,19 +155,18 @@ Steps:
 
 | Method                  | Route                               | Description |
 | ----------------------- | ----------------------------------- | ----------- |
-| `POST /api/auth/signup` | Register a new user                 |             |
-| `POST /api/auth/signin` | Authenticate a user                 |             |
-| `GET /api/chats`        | Retrieve user’s chats               |             |
-| `GET /api/chats/[id]`   | Get messages in a chat              |             |
+| `POST /api/register` | Register a new user |
+| `GET/POST /api/auth/[...nextauth]` | NextAuth sign-in and callbacks |
+| `POST /api/conversations` | Open or create a conversation |
 | `POST /api/messages`    | Send a new message                  |             |
-| `GET /api/pusher/auth`  | Authenticate Pusher private channel |             |
+| `POST /api/pusher/auth`  | Authenticate Pusher private channel |             |
 
 ---
 
 ## 🧤 Developer Notes
 
 * All protected routes are managed via `middleware.ts`.
-* API logic is colocated under `pages/api/`.
+* App API routes live under `app/api/`, with Pusher authorization under `pages/api/`.
 * Pusher client and server instances are initialized in `/lib/pusher.ts`.
 * Prisma client should be imported from a single shared instance to avoid hot-reload issues.
 * Maintain version sync between `prisma` and `@prisma/client`.
